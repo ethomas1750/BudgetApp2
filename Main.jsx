@@ -1,11 +1,25 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import App from './App.jsx'
-import './index.css'
+mport { Outlet, useLoaderData } from "react-router-dom";
+import wave from "../assets/wave.svg";
+import Nav from "../components/Nav";
+import { fetchData } from "../helpers";
 
-ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-)
+export function mainLoader() {
+  const userName = fetchData("userName");
+  return { userName };
+}
 
+const Main = () => {
+  const { userName } = useLoaderData();
+
+  return (
+    <div className="layout">
+      <Nav userName={userName} />
+      <main>
+        <Outlet />
+      </main>
+      <img src={wave} alt="" />
+    </div>
+  );
+};
+
+export default Main;
