@@ -1,33 +1,52 @@
-// rrd imports
-import {userLoaderData} from "react-router-dom"
+import { Link, useFetcher } from "react";
+import { TrashIcon } from "@heroicons/react/24/solid";
+import {
+  formatCurrency,
+  formatDateToLocaleString,
+  getAllMatchingItems,
+} from "../helpers";
 
-// helpers
-import {fetchData} from "../helpers";
+const ExpenseItem = ({ expense, showBudget }) => {
+  const fetcher = useFetcher();
 
-// loader
-export function dashboardLoader() {
-    const expenses = fetchData("expenses")
-    return{expenses}
-    } 
+  const budget = getAllMatchingItems({
+    category: "budgets",
+    key: "id",
+    value: expense.budgetId,
+  })[0];
 
-export const ExpensesPage = () => {
-    const {expenses} = userLoaderData()
-
-    return <div className="grid-lg">
-        <h1>All Expenses</h1>
-        {
-            expenses && expenses.length > 0
-            ? (
-                <div className="grid-md">
-                    <h2>Recent Expenses<small>({expenses.length}total)</small>
-                    </h2>
-                    <Table expenses={expenses}/>
-                    </div>
-            )
-            : <p>No Expenses to show</p>
-        }
-    </div>;
+  return (
+    <>
+      <td>{expense.name}</td>
+      <td>{formatCurrency(expense.amount)}</td>
+      <td>{formatDateToLocaleString(expense.createdAt)}</td>
+      {showBudget && (
+        <td>
+          <Link
+            to={`/budget/${budget.id}`}
+            style={{
+              "--accent": budget.color,
+            }}
+          >
+            {budget.name}
+          </Link>
+        </td>
+      )}
+      <td>
+        <fetcher.Form method="post">
+          <input type="hidden" name="_action" value="deleteExpense" />
+          <input type="hidden" name="expenseId" value={expense.id} />
+          <button
+            type="submit"
+            className="btn btn--warning"
+            aria-label={`Delete ${expense.name} expense`}
+          >
+            <TrashIcon width={20} />
+          </button>
+        </fetcher.Form>
+      </td>
+    </>
+  );
 };
 
-export default ExpensesPage
-
+export default ExpenseItem;
